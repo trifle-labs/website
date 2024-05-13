@@ -1,1 +1,175 @@
-<div style="font-size: 144pt;">☘️</div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Trifle</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      /* background-color: #0ee; */
+      background-color: lightgrey;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    svg, img, #trifle {
+      display: block;
+      /* margin: 0 auto; */
+      max-width: 600px;
+      width: 100%;
+      padding:3%
+    }
+    svg, #trifle {
+      color: black;
+      margin-left: -50%;
+      text-align: center;
+    }
+    #canvas {
+      margin-right: -50%;
+      /* filter: invert(100%); */
+
+      /* filter: contrast(150%); */
+      /* mix-blend-mode: screen; */
+
+    }
+    #twitter-link {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      width: 48px;
+      margin-left: -24px;
+      z-index: 1000;
+    }
+    </style>
+</head>
+<body>
+ 
+  <div id="trifle">
+  <img src="trifle-logo-w.svg">
+  <!-- a game studio -->
+  </div>
+<!-- 
+  <canvas id="canvas" width="1000" height="1000"></canvas>
+
+  <script src="/index.js"></script> -->
+
+<img id="canvas" src="/mario.png">
+
+<a id="twitter-link" href="https://x.com/triflelife" target="_blank" aria-label="Trifle Life">
+  <img src="x.svg" alt="Trifle Life">
+</a>
+
+<script>
+  var canvas = document.getElementById("canvas");
+
+  const initialSpeed = 160;
+  const animationSpeed = 120
+  let dragStart = false;
+  let speed = 0;
+  let transform = 0
+  canvas.addEventListener("mousedown", function (_ref) {
+    console.log("mousedown;")
+    var clientX = _ref.clientX;
+    var clientY = _ref.clientY;
+
+    dragStart = { clientX: clientX, clientY: clientY };
+    _ref.preventDefault();
+  });
+  canvas.addEventListener("touchstart", function (_ref2) {
+    console.log('touchstart')
+    var originalEvent = _ref2.originalEvent;
+
+    dragStart = {
+      clientX: originalEvent.touches[0].pageX,
+      clientY: originalEvent.touches[0].pageY,
+    };
+  });
+  canvas.addEventListener("mousemove", function (_ref3) {
+    console.log('mousemove')
+    var clientX = _ref3.clientX;
+    var clientY = _ref3.clientY;
+    return (
+      dragStart &&
+      (function () {
+        updateSpeed(dragStart, { clientX: clientX, clientY: clientY });
+        dragStart = { clientX: clientX, clientY: clientY };
+      })()
+    );
+  });
+  canvas.addEventListener("touchmove", function (_ref4) {
+    console.log('touchmove')
+    var originalEvent = _ref4.originalEvent;
+    return (
+      dragStart &&
+      (function () {
+        updateSpeed(dragStart, {
+          clientX: originalEvent.touches[0].pageX,
+          clientY: originalEvent.touches[0].pageY,
+        });
+        dragStart = {
+          clientX: originalEvent.touches[0].pageX,
+          clientY: originalEvent.touches[0].pageY,
+        };
+      })()
+    );
+  });
+  window.addEventListener("mouseup", function () {
+    console.log('mouseup')
+    dragStart = false;
+    speed *= 2
+  });
+  window.addEventListener("touchend", function () {
+    console.log('touchend')
+    dragStart = false;
+    speed *= 2
+  });
+
+  function updateSpeed(startPos, endPos) {
+    // console.log({ startPos, endPos });
+    speed =
+      (Math.atan2(
+        startPos.clientX - (canvas.offsetLeft + canvas.width / 2),
+        startPos.clientY - (canvas.offsetTop + canvas.height / 2)
+      ) -
+      Math.atan2(
+        endPos.clientX - (canvas.offsetLeft + canvas.width / 2),
+        endPos.clientY - (canvas.offsetTop + canvas.height / 2)
+        )) *
+      100;
+  }
+
+  function run() {
+    transform += speed;
+    canvas.style.transform = `rotate(${transform}deg)`;
+
+    // document.body.style.backgroundColor = `hsl(${(speed / initialSpeed) * 100}, 30%, 50%)`;
+  
+    const diff = 40
+    let margin = Math.abs(speed) % animationSpeed
+    margin = margin > (animationSpeed - diff) ? animationSpeed - margin : margin
+    const blinkerMode = margin < diff && Math.abs(speed) > diff
+    speed *= speed < 0.01 ? 0 : speed > 1 ? (blinkerMode && margin < diff / 10 ? 0.998 : 0.992)  : 0.992
+    if (blinkerMode ) {
+      setTimeout(() => {
+        run();
+      }, 50);
+    } else {
+      window.requestAnimationFrame(run);
+    }
+  }
+  run()
+  const init = setInterval(() => {
+    if (speed < initialSpeed) {
+      speed += 1;
+    } else {
+      clearInterval(init);
+    }
+  })
+</script>
+
+</body>
+</html>
